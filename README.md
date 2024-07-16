@@ -73,6 +73,9 @@ All of the configs here are set using `setr [voice_configOption] [int]` OR `setr
 | voice_enableCalls           |    1    | Enables the call sub-modules                                 | int          |
 | voice_enableSubmix      |    1    | Enables the submix which adds a radio/call style submix to their voice **NOTE: Submixs require native audio** | int          |
 | voice_enableRadioAnim        |   1     | Enables (grab shoulder mic) animation while talking on the radio.          | int          |
+| voice_useEmoteMenuAnim       |   1     | Use Animation from EmoteMenu.                                              | int          |
+| voice_emoteMenuAnim          |   e wt2  | The animation command to use.                                              | string       |
+| voice_emoteMenuStopAnim      |   e c    | The animation command to stop.                                             | string       |
 | voice_defaultRadio           |   LMENU  | The default key to use the radio. You can find a list of valid keys [in the FiveM docs](https://docs.fivem.net/docs/game-references/input-mapper-parameter-ids/keyboard/)                             | string       |
 
 ### Sync

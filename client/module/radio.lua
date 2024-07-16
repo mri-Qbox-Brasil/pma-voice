@@ -1,6 +1,7 @@
 local radioChannel = 0
 local radioNames = {}
 local disableRadioAnim = false
+local useEmoteMenuAnim = GetConvarInt('voice_useEmoteMenuAnim', 0) == 1
 
 ---@return boolean isEnabled if radioEnabled is true and LocalPlayer.state.disableRadio is 0 (no bits set)
 function isRadioEnabled()
@@ -172,8 +173,7 @@ function isDead()
 end
 
 function isRadioAnimEnabled()
-	if
-		GetConvarInt('voice_enableRadioAnim', 1) == 1
+	if GetConvarInt('voice_enableRadioAnim', 1) == 1
 		and not (GetConvarInt('voice_disableVehicleRadioAnim', 0) == 1
 			and IsPedInAnyVehicle(PlayerPedId(), false))
 		and not disableRadioAnim then
@@ -194,31 +194,43 @@ RegisterCommand('+radiotalk', function()
 			radioPressed = true
 			local shouldPlayAnimation = isRadioAnimEnabled()
 			playMicClicks(true)
-			if shouldPlayAnimation then
-				RequestAnimDict('random@arrests')
-			end
+			if not useEmoteMenuAnim then
+                if shouldPlayAnimation then
+                    RequestAnimDict('random@arrests')
+                end
+            end
 			CreateThread(function()
 				TriggerEvent("pma-voice:radioActive", true)
 				LocalPlayer.state:set("radioActive", true, true);
 				local checkFailed = false
+                local animActive = false
 				while radioPressed do
 					if radioChannel < 0 or isDead() or not isRadioEnabled() then
 						checkFailed = true
 						break
 					end
-					if shouldPlayAnimation and HasAnimDictLoaded("random@arrests") then
-						if not IsEntityPlayingAnim(PlayerPedId(), "random@arrests", "generic_radio_enter", 3) then
-							TaskPlayAnim(PlayerPedId(), "random@arrests", "generic_radio_enter", 8.0, 2.0, -1, 50, 2.0, false,
-								false,
-							false)
-						end
-					end
+					if shouldPlayAnimation then
+                        if useEmoteMenuAnim then
+                            if not animActive then
+                                ExecuteCommand(GetConvar("voice_emoteMenuAnim", "e wt2"))
+                                animActive = not animActive
+                            end
+                        else
+                            if HasAnimDictLoaded("random@arrests") then
+                                if not IsEntityPlayingAnim(PlayerPedId(), "random@arrests", "generic_radio_enter", 3) then
+                                    TaskPlayAnim(PlayerPedId(), "random@arrests", "generic_radio_enter", 8.0, 2.0, -1, 50, 2.0, false,
+                                        false,
+                                    false)
+                                end
+                            end
+                        end
+                    end
 					SetControlNormal(0, 249, 1.0)
 					SetControlNormal(1, 249, 1.0)
 					SetControlNormal(2, 249, 1.0)
 					Wait(0)
 				end
-
+                animActive = false
 
 				if checkFailed then
 					logger.info("Canceling radio talking as the checks have failed.")
@@ -244,6 +256,7 @@ RegisterCommand('-radiotalk', function()
 		playMicClicks(false)
 		if GetConvarInt('voice_enableRadioAnim', 1) == 1 then
 			StopAnimTask(PlayerPedId(), "random@arrests", "generic_radio_enter", -4.0)
+            ExecuteCommand(GetConvar("voice_emoteMenuStopAnim", "e c"))
 		end
 		TriggerServerEvent('pma-voice:setTalkingOnRadio', false)
 	end
@@ -290,4 +303,3 @@ local function removeRadioDisableBit(bit)
 	LocalPlayer.state:set("disableRadio", curVal, true)
 end
 exports("removeRadioDisableBit", removeRadioDisableBit)
-
