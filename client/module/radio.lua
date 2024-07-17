@@ -1,7 +1,7 @@
 local radioChannel = 0
 local radioNames = {}
 local disableRadioAnim = false
-local useEmoteMenuAnim = GetConvarInt('voice_useEmoteMenuAnim', 0) == 1
+local useEmoteMenuAnim = GetConvarInt('voice_useEmoteMenuAnim', 1) == 1
 
 ---@return boolean isEnabled if radioEnabled is true and LocalPlayer.state.disableRadio is 0 (no bits set)
 function isRadioEnabled()
